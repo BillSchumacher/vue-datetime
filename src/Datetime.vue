@@ -167,6 +167,8 @@ export default {
             format = DateTime.TIME_24_SIMPLE
             break
           case 'datetime':
+            format = { weekday: 'long', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: this.use12Hour };
+            break;
           case 'default':
             format = DateTime.DATETIME_MED
             break
