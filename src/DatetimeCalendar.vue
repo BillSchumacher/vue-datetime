@@ -25,7 +25,7 @@
 <script>
 import { DateTime } from 'luxon'
 import { monthDayIsDisabled, monthDays, months, weekdays } from './util'
-import {ZonedDateTime} from "@js-joda/core";
+import { ZonedDateTime } from '@js-joda/core'
 
 export default {
   props: {

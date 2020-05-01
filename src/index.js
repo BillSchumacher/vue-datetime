@@ -1,5 +1,5 @@
-require("@js-joda/timezone");
-import "@js-joda/locale_en-us";
+require('@js-joda/timezone')
+import '@js-joda/locale_en-us'
 import Datetime from './Datetime.vue'
 import DatetimePopup from './DatetimePopup.vue'
 

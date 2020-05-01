@@ -15,7 +15,7 @@
 
 <script>
 import { hours, minutes, pad, timeComponentIsDisabled } from './util'
-import {LocalTime} from "@js-joda/core";
+import { LocalTime } from '@js-joda/core'
 
 export default {
   props: {

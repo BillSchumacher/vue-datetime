@@ -47,14 +47,14 @@
 import { DateTime } from 'luxon'
 import DatetimePopup from './DatetimePopup'
 import { datetimeFromISO, startOfDay, weekStart } from './util'
-import {ZonedDateTime} from "@js-joda/core";
+import { ZonedDateTime } from '@js-joda/core'
 import {
   date_with_regular_time_formatter,
   date_with_slashes_formatter,
   military_time_double_formatter,
   military_time_formatter,
   regular_time_formatter
-} from "./time";
+} from './time'
 
 export default {
   components: {
@@ -134,8 +134,8 @@ export default {
     weekStart: {
       type: Number,
       default () {
-        let now = ZonedDateTime.now(this.valueZone);
-        return now.minusDays(now.dayOfWeek().ordinal()).dayOfMonth();
+        const now = ZonedDateTime.now(this.valueZone)
+        return now.minusDays(now.dayOfWeek().ordinal()).dayOfMonth()
       }
     },
     flow: {
@@ -237,14 +237,14 @@ export default {
       this.close()
     },
     newPopupDatetime () {
-      let datetime = ZonedDateTime.now().atZone(this.zone).withSeconds(0).withNanos(0);
+      let datetime = ZonedDateTime.now().atZone(this.zone).withSeconds(0).withNanos(0)
 
       if (this.popupMinDatetime && datetime.isBefore(this.popupMinDatetime)) {
-        datetime = this.popupMinDatetime.withSeconds(0).withNanos(0);
+        datetime = this.popupMinDatetime.withSeconds(0).withNanos(0)
       }
 
       if (this.popupMaxDatetime && datetime.isAfter(this.popupMaxDatetime)) {
-        datetime = this.popupMaxDatetime.withSeconds(0).withNanos(0);
+        datetime = this.popupMaxDatetime.withSeconds(0).withNanos(0)
       }
 
       if (this.minuteStep === 1) {
@@ -254,10 +254,10 @@ export default {
       const roundedMinute = Math.round(datetime.minute / this.minuteStep) * this.minuteStep
 
       if (roundedMinute === 60) {
-        return datetime.plusHours(1).withMinute(0);
+        return datetime.plusHours(1).withMinute(0)
       }
 
-      return datetime.withMinute(roundedMinute);
+      return datetime.withMinute(roundedMinute)
     },
     setValue (event) {
       this.datetime = ZonedDateTime.parse(event.target.value)
