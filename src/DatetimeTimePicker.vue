@@ -15,6 +15,7 @@
 
 <script>
 import { hours, minutes, pad, timeComponentIsDisabled } from './util'
+import {LocalTime} from "@js-joda/core";
 
 export default {
   props: {
@@ -39,11 +40,11 @@ export default {
       default: 1
     },
     minTime: {
-      type: String,
+      type: Object,
       default: null
     },
     maxTime: {
-      type: String,
+      type: Object,
       default: null
     }
   },

@@ -58,6 +58,7 @@ import DatetimeCalendar from './DatetimeCalendar'
 import DatetimeTimePicker from './DatetimeTimePicker'
 import DatetimeYearPicker from './DatetimeYearPicker'
 import DatetimeMonthPicker from './DatetimeMonthPicker'
+import {ZonedDateTime} from "@js-joda/core";
 
 const KEY_TAB = 9
 const KEY_ENTER = 13
@@ -73,7 +74,7 @@ export default {
 
   props: {
     datetime: {
-      type: DateTime,
+      type: Object,
       required: true
     },
     phrases: {
@@ -102,11 +103,11 @@ export default {
       default: 1
     },
     minDatetime: {
-      type: DateTime,
+      type: Object,
       default: null
     },
     maxDatetime: {
-      type: DateTime,
+      type: Object,
       default: null
     },
     auto: {

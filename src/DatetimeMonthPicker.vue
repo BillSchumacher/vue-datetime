@@ -10,6 +10,7 @@
 <script>
 import { DateTime } from 'luxon'
 import { monthIsDisabled, months } from './util'
+import {ZonedDateTime} from "@js-joda/core";
 
 export default {
   props: {
@@ -22,11 +23,11 @@ export default {
       required: true
     },
     minDate: {
-      type: DateTime,
+      type: Object,
       default: null
     },
     maxDate: {
-      type: DateTime,
+      type: Object,
       default: null
     }
   },

@@ -47,6 +47,14 @@
 import { DateTime } from 'luxon'
 import DatetimePopup from './DatetimePopup'
 import { datetimeFromISO, startOfDay, weekStart } from './util'
+import {ZonedDateTime} from "@js-joda/core";
+import {
+  date_with_regular_time_formatter,
+  date_with_slashes_formatter,
+  military_time_double_formatter,
+  military_time_formatter,
+  regular_time_formatter
+} from "./time";
 
 export default {
   components: {
@@ -112,11 +120,11 @@ export default {
       default: 1
     },
     minDatetime: {
-      type: String,
+      type: Object,
       default: null
     },
     maxDatetime: {
-      type: String,
+      type: Object,
       default: null
     },
     auto: {
@@ -126,7 +134,8 @@ export default {
     weekStart: {
       type: Number,
       default () {
-        return weekStart()
+        let now = ZonedDateTime.now(this.valueZone);
+        return now.minusDays(now.dayOfWeek().ordinal()).dayOfMonth();
       }
     },
     flow: {
@@ -140,13 +149,13 @@ export default {
   data () {
     return {
       isOpen: false,
-      datetime: datetimeFromISO(this.value)
+      datetime: ZonedDateTime.parse(this.value)
     }
   },
 
   watch: {
     value (newValue) {
-      this.datetime = datetimeFromISO(newValue)
+      this.datetime = ZonedDateTime.parse(newValue)
     }
   },
 
@@ -161,46 +170,54 @@ export default {
       if (!format) {
         switch (this.type) {
           case 'date':
-            format = DateTime.DATE_MED
+            format = date_with_slashes_formatter
             break
           case 'time':
-            format = DateTime.TIME_24_SIMPLE
+            if (!this.use12Hour) {
+              format = military_time_double_formatter
+            } else {
+              format = regular_time_formatter
+            }
             break
           case 'datetime':
-            format = { weekday: 'long', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: this.use12Hour };
-            break;
+            if (!this.use12Hour) {
+              format = date_with_military_time_formatter
+            } else {
+              format = date_with_regular_time_formatter
+            }
+            break
           case 'default':
-            format = DateTime.DATETIME_MED
+            format = date_with_military_time_formatter
             break
         }
       }
 
       if (typeof format === 'string') {
-        return this.datetime ? DateTime.fromISO(this.datetime).setZone(this.zone).toFormat(format) : ''
+        return this.datetime ? ZonedDateTime.parse(this.datetime).atZone(this.zone).format(format) : ''
       } else {
-        return this.datetime ? this.datetime.setZone(this.zone).toLocaleString(format) : ''
+        return this.datetime ? this.datetime.atZone(this.zone).toLocaleString(format) : ''
       }
     },
     popupDate () {
-      return this.datetime ? this.datetime.setZone(this.zone) : this.newPopupDatetime()
+      return this.datetime ? this.datetime.atZone(this.zone) : this.newPopupDatetime()
     },
     popupMinDatetime () {
-      return this.minDatetime ? DateTime.fromISO(this.minDatetime).setZone(this.zone) : null
+      return this.minDatetime ? this.minDatetime : null
     },
     popupMaxDatetime () {
-      return this.maxDatetime ? DateTime.fromISO(this.maxDatetime).setZone(this.zone) : null
+      return this.maxDatetime ? this.maxDatetime : null
     }
   },
 
   methods: {
     emitInput () {
-      let datetime = this.datetime ? this.datetime.setZone(this.valueZone) : null
+      let datetime = this.datetime ? this.datetime : null
 
       if (datetime && this.type === 'date') {
-        datetime = startOfDay(datetime)
+        datetime = datetime.atStartOfDay()
       }
 
-      this.$emit('input', datetime ? datetime.toISO() : '')
+      this.$emit('input', datetime ? datetime.toString() : '')
     },
     open (event) {
       event.target.blur()
@@ -212,7 +229,7 @@ export default {
       this.$emit('close')
     },
     confirm (datetime) {
-      this.datetime = datetime.toUTC()
+      this.datetime = datetime
       this.emitInput()
       this.close()
     },
@@ -220,14 +237,14 @@ export default {
       this.close()
     },
     newPopupDatetime () {
-      let datetime = DateTime.utc().setZone(this.zone).set({ seconds: 0, milliseconds: 0 })
+      let datetime = ZonedDateTime.now().atZone(this.zone).withSeconds(0).withNanos(0);
 
-      if (this.popupMinDatetime && datetime < this.popupMinDatetime) {
-        datetime = this.popupMinDatetime.set({ seconds: 0, milliseconds: 0 })
+      if (this.popupMinDatetime && datetime.isBefore(this.popupMinDatetime)) {
+        datetime = this.popupMinDatetime.withSeconds(0).withNanos(0);
       }
 
-      if (this.popupMaxDatetime && datetime > this.popupMaxDatetime) {
-        datetime = this.popupMaxDatetime.set({ seconds: 0, milliseconds: 0 })
+      if (this.popupMaxDatetime && datetime.isAfter(this.popupMaxDatetime)) {
+        datetime = this.popupMaxDatetime.withSeconds(0).withNanos(0);
       }
 
       if (this.minuteStep === 1) {
@@ -237,13 +254,13 @@ export default {
       const roundedMinute = Math.round(datetime.minute / this.minuteStep) * this.minuteStep
 
       if (roundedMinute === 60) {
-        return datetime.plus({ hours: 1 }).set({ minute: 0 })
+        return datetime.plusHours(1).withMinute(0);
       }
 
-      return datetime.set({ minute: roundedMinute })
+      return datetime.withMinute(roundedMinute);
     },
     setValue (event) {
-      this.datetime = datetimeFromISO(event.target.value)
+      this.datetime = ZonedDateTime.parse(event.target.value)
       this.emitInput()
     }
   }
